@@ -4,77 +4,19 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
-class SrcButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.srcFileName = None
-
-    def mousePressEvent(self, e: QMouseEvent) -> None:
-        self.srcFileName = self.choose_src_file()
-        print(self.srcFileName)
-        SrcLabel.setText(self.srcFileName)
-
-    def choose_src_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(caption='Choose source file',
-                                                   filter='Source Code Files (*.AWL)')
-        return file_path
-
-
-class DstButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def mousePressEvent(self, e: QMouseEvent) -> None:
-        self.choose_dst_file()
-
-    def choose_dst_file(self):
-        file_path, _ = QFileDialog.getSaveFileName(caption="Choose destination file",
-                                                   filter='Logix Designer XML Files (*.L5X)')
-        print(file_path)
-
-        # if file_path != '':
-        #     self.var_dst_file_name.set(file_path)
-
-
-class ConvertButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def mousePressEvent(self, e: QMouseEvent) -> None:
-        self.convert_file()
-
-    def convert_file(self):
-        if self.var_src_file_name.get()[-4:] == ".AWL":
-            try:
-                self.var_convert_stat.set('Converting...')
-                # converter.db_to_udt(self.var_src_file_name.get(), self.var_dst_file_name.get())
-                self.var_convert_stat.set('Conversion Finished Successfully!')
-            except:
-                self.var_convert_stat.set('Failed to convert file!')
-        else:
-            self.var_convert_stat.set("Filename must be a .AWL")
-
-
-class SrcLabel(QLabel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-class DstLabel(QLabel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-class ConvertLabel(QLabel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setupApp()
+
+        # configure signals and slots
+        self.srcButton.clicked.connect(self.chooseSrcFile)
+        self.dstButton.clicked.connect(self.chooseDstFile)
+        self.convertButton.clicked.connect(self.convertFile)
+
+
+    def setupApp(self):
         # set window title
         self.setWindowTitle('DB to UDT Converter')
 
@@ -93,7 +35,7 @@ class MainWindow(QMainWindow):
         self.convertButton = QPushButton('Convert file!')
         self.convertLabel = QLabel('Waiting to convert file...')
 
-        # configure/set Central Widget
+        # configure and set Central Widget
         centralWidget = QWidget()
         layout = QVBoxLayout()
         layout.addWidget(self.mainLabel, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -106,10 +48,6 @@ class MainWindow(QMainWindow):
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
 
-        # configure signals and slots
-        self.srcButton.clicked.connect(self.chooseSrcFile)
-        self.dstButton.clicked.connect(self.chooseDstFile)
-        self.convertButton.clicked.connect(self.convertFile)
 
     def chooseSrcFile(self):
         self.srcFileName, _ = QFileDialog.getOpenFileName(caption='Choose source file',
@@ -121,7 +59,7 @@ class MainWindow(QMainWindow):
         self.dstFileName, _ = QFileDialog.getSaveFileName(caption="Choose destination file",
                                                           filter='Logix Designer XML Files (*.L5X)')
         if self.dstFileName:
-            self.srcLabel.setText(self.dstFileName)
+            self.dstLabel.setText(self.dstFileName)
 
     def convertFile(self):
         if self.srcFileName[-4:] == ".AWL":

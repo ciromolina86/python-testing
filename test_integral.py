@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import test_matplotlib.pyplot as plt
 from scipy.integrate import quad, cumtrapz, trapz
 import numpy as np
 

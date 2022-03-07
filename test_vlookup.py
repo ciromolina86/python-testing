@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
+import test_matplotlib.pyplot as plt
 
 x = np.linspace(0, 10, num=11, endpoint=True)
 print(x)

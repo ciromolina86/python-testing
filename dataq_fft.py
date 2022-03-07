@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
+import test_matplotlib.pyplot as plt
 import thinkdsp
 import fft_eng
 
