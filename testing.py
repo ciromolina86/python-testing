@@ -8,24 +8,22 @@ warnings.simplefilter("ignore", UserWarning)
 
 
 def isVoltaFile(fileName: str) -> bool:
-    return bool(re.search(r"s3://gp-eda-dev-waveform-derivatives/Electrical/Volta", fileName))
+    return bool(re.search(r"Electrical/Volta", fileName))
 
 
 def redirectVolta(key: str) -> str:
-    bucket = None
     prefixLevel0 = prefixLevel1 = prefixLevel2 = prefixLevel3 = prefixLevel4 = prefixLevel5 = prefixLevel6 = None
 
     dir, file = os.path.split(key)
 
     dirMatch = re.search(
-        r"s3://(gp-eda-dev-waveform-derivatives)/(Electrical)/(Volta)/(.*)/(MotorReport|MotorStart|MotorStop)", dir)
+        r"(Electrical)/(Volta)/(.*)/(MotorReport|MotorStart|MotorStop)", dir)
 
     if dirMatch:
-        bucket = [dirMatch.group(1)]
-        prefixLevel0 = [dirMatch.group(2), dirMatch.group(3)]
-        prefixLevel2 = [dirMatch.group(5)]
+        prefixLevel0 = [dirMatch.group(1), dirMatch.group(2)]
+        prefixLevel2 = [dirMatch.group(4)]
 
-        if dirMatch.group(5) == 'MotorReport':
+        if dirMatch.group(4) == 'MotorReport':
             fileMatch = re.search(r"Node_\d*_(\d*)_(\d*)_\d*_(tdw-ds|fft-ds|tdw|fft).*", file)
 
             if fileMatch:
@@ -42,8 +40,8 @@ def redirectVolta(key: str) -> str:
                 if timeMatch:
                     prefixLevel6 = [timeMatch.group(1)]
 
-        elif dirMatch.group(5) == 'MotorStart' or dirMatch.group(5) == 'MotorStop':
-            fileMatch = re.search(r"Node_\d*_(\d*)_(\d*)_\d*_.*_(tdw\-ds|fft\-ds|tdw|fft).*", file)
+        elif dirMatch.group(4) == 'MotorStart' or dirMatch.group(5) == 'MotorStop':
+            fileMatch = re.search(r"Node_\d*_(\d*)_(\d*\.\d*)_\d*_.*_(tdw\-ds|fft\-ds|tdw|fft).*", file)
 
             if fileMatch:
                 prefixLevel1 = [fileMatch.group(3)]
@@ -59,9 +57,8 @@ def redirectVolta(key: str) -> str:
                 if timeMatch:
                     prefixLevel6 = [timeMatch.group(1)]
 
-    return 's3://' + '/'.join(bucket + prefixLevel0 +
-                              prefixLevel1 + prefixLevel2 + prefixLevel3 + prefixLevel4 + prefixLevel5 + prefixLevel6 +
-                              [file])
+    return '/'.join(prefixLevel0 + prefixLevel1 + prefixLevel2 + prefixLevel3 +
+                    prefixLevel4 + prefixLevel5 + prefixLevel6 + [file])
 
 
 def isSELFile(fileName: str) -> bool:
@@ -186,9 +183,9 @@ def redirectBanner(key: str) -> str:
 def main():
     '''  keys  '''
     volta_key = ''
-    volta_key = 's3://gp-eda-dev-waveform-derivatives/Electrical/Volta/FFT/MotorReport/Node_21000_20200819_060000_1597816800_fft.csv'
-    volta_key = 's3://gp-eda-dev-waveform-derivatives/Electrical/Volta/FFT/MotorStart/Node_21000_20200819_060000_1597816800_start_fft.csv'
-    volta_key = 's3://gp-eda-dev-waveform-derivatives/Electrical/Volta/FFT/MotorStop/Node_21000_20200819_060000_1597816800_stop-u_fft-ds_red-rate=01.csv'
+    # volta_key = 'Electrical/Volta/FFT/MotorReport/Node_21000_20200819_060000_1597816800_fft.csv'
+    volta_key = 'Electrical/Volta/FFT/MotorStart/Node_21103_20220308_132419.856_1646745859856_start_tdw.csv'
+    # volta_key = 'Electrical/Volta/FFT/MotorStop/Node_21000_20200819_060000_1597816800_stop-u_fft-ds_red-rate=01.csv'
 
     sel_key = ''
     # sel_key = 's3://gp-eda-dev-waveform-derivatives/Electrical/SEL/FFT/TransientEvents/SEL_event_10000_20210829223709659548_SEL710-C1-1-179M_tdw-ds_red-rate=09.csv'
